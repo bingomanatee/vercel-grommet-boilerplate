@@ -9,15 +9,18 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "grommet": "^2.26.0",
+    "grommet-icons": "^4.8.0",
     "next": "12.3.1",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "styled-components": "^5.3.6"
   },
   "devDependencies": {
     "@types/node": "18.8.2",
     "@types/react": "18.0.21",
     "@types/react-dom": "18.0.6",
-    "eslint": "8.24.0",
+    "eslint": "8.20.0",
     "eslint-config-next": "12.3.1",
     "typescript": "4.8.4"
   }
