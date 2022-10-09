@@ -28,3 +28,37 @@ a {
     background: black;
   }
 }
+
+button, button > * {
+  white-space: nowrap;
+}
+
+@font-face {
+  font-family: San Francisco;
+  src: url("/fonts/SFProOTF/SF-Pro-Text-medium.otf") format("opentype");
+}
+
+@font-face {
+  font-family: San Francisco Display Black;
+  src: url("/fonts/SFProOTF/SF-Pro-Display-Black.otf") format("opentype")
+}
+
+@font-face {
+  font-family: San Francisco Display;
+  src: url("/fonts/SFProOTF/SF-Pro-Display-Bold.otf") format("opentype")
+}
+
+@font-face {
+  font-family: San Francisco Light;
+  src: url("/fonts/SFProOTF/SF-Pro-Display-Light.otf") format("opentype")
+}
+
+@font-face {
+  font-family: San Francisco Rounded Thin;
+  src: url("/fonts/SFProOTF/SF-Pro-Rounded-Thin.otf") format("opentype")
+}
+
+@font-face {
+  font-family: San Francisco Rounded Black;
+  src: url("/fonts/SFProOTF/SF-Pro-Rounded-Black.otf") format("opentype")
+}

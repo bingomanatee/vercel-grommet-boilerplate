@@ -1,7 +1,9 @@
-import { Grommet, Box, grommet as grommetTheme } from 'grommet'
-import styles from '../styles/App.module.css'
+import { Grommet, Box } from 'grommet'
+import grommetTheme from '../lib/grommet-theme'
 import '../styles/globals.css'
 import AppHead from "../lib/views/AppHead";
+
+//console.log('grommet-theme: ', JSON.stringify(grommetTheme, true, 5))
 
 export default function App({ Component, pageProps }) {
   return (
