@@ -6,8 +6,18 @@ import WithLocalState from "../lib/WithLocalState";
 import { Leaf } from "@wonderlandlabs/forest";
 import {isEmail} from 'validator';
 import axios from "axios";
+import { useContext } from "react";
+import { GlobalProvider } from "../lib/globalState";
+import LoggedIn from "../lib/LoggedIn";
 
 const Home: NextPage = ({ email, leaf, clicked, sent, $canSubmit }) => {
+  const gv = useContext(GlobalProvider);
+  console.log('home gv:', gv);
+  const {id, token} = gv.globalValue;
+  console.log('id:', id, 'token:', token);
+  if (id && token) {
+    return <LoggedIn />
+  }
   return (
     <Page>
       <PageContent>
