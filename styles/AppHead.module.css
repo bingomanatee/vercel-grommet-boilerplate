@@ -1,0 +1,10 @@
+
+
+.logo {
+    width: calc(415px/4);
+    height: max(1rem, calc(357px/4));
+}
+
+.icon {
+    height: max(1rem, calc(357px/4 - 1rem));
+}

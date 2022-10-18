@@ -17,7 +17,7 @@ export default async function handler(
 
   const {email} = req.body;
   console.log('-- getting tokens for ', email);
-  const { data } = await axios.post('http://localhost:3040/connect/create-bridge', {
+  const { data } = await axios.post( process.env.API_ROOT + 'connect/create-bridge', {
     email
   });
 

@@ -4,19 +4,25 @@ import Image from 'next/image'
 import { Box, Button, Heading, Page, PageContent, Text, Paragraph, TextInput } from "grommet";
 import WithLocalState from "../lib/WithLocalState";
 import { Leaf } from "@wonderlandlabs/forest";
-import {isEmail} from 'validator';
+import { isEmail } from 'validator';
 import axios from "axios";
 import { useContext } from "react";
 import { GlobalProvider } from "../lib/globalState";
-import LoggedIn from "../lib/LoggedIn";
+import LoggedIn from "../lib/views/LoggedIn";
+import { useRouter } from "next/router";
 
 const Home: NextPage = ({ email, leaf, clicked, sent, $canSubmit }) => {
   const gv = useContext(GlobalProvider);
-  console.log('home gv:', gv);
-  const {id, token} = gv.globalValue;
-  console.log('id:', id, 'token:', token);
+  const router = useRouter();
+
+  if (gv.globalValue.authorized === false) {
+    router.push('/unauthorized');
+    return '';
+  }
+  const { id, token } = gv.globalValue;
+  console.log('gv.globalValue:', gv.globalValue);
   if (id && token) {
-    return <LoggedIn />
+    return <LoggedIn/>
   }
   return (
     <Page>
@@ -34,7 +40,7 @@ const Home: NextPage = ({ email, leaf, clicked, sent, $canSubmit }) => {
                      size="lg" type="email"></TextInput>
           {/* eslint-disable-next-line react/jsx-no-undef */}
           <Button plain={false} onClick={leaf.do.submit}
-                  disabled={  !$canSubmit}
+                  disabled={!$canSubmit}
                   primary><Text size="lg">
             Get Tokens
           </Text>
@@ -50,20 +56,20 @@ const Home: NextPage = ({ email, leaf, clicked, sent, $canSubmit }) => {
 }
 
 export default WithLocalState(() => {
-  return new Leaf({ email: '', clicked: false, sent: false}, {
+  return new Leaf({ email: '', clicked: false, sent: false }, {
     actions: {
       submit(leaf) {
-       leaf.do.setClicked(true);
-       axios.post('/api/bridge', {email: leaf.value.email})
-         .then(({data}) => {
-           leaf.do.setSent(true);
-         })
+        leaf.do.setClicked(true);
+        axios.post('/api/bridge', { email: leaf.value.email })
+          .then(({ data }) => {
+            leaf.do.setSent(true);
+          })
       }
     },
     selectors: {
-      canSubmit({email, clicked}) {
+      canSubmit({ email, clicked }) {
         return !clicked && isEmail(email);
       }
-    }
+    },
   });
 }, Home);

@@ -11,8 +11,15 @@ const Login = (params) => {
   useEffect(() => {
     if (router.query.id && router.query.token) {
       globalLeaf.do.initToken(router );
+    } else if (!globalValue.cookieChecked) {
+      globalLeaf.do.initCookie();
     }
   }, [router.query])
+
+  if (globalValue.authorized === false) {
+    router.push('/unauthorized');
+    return '';
+  }
 
   return (
     <pre>

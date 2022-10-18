@@ -11,6 +11,8 @@
   "dependencies": {
     "@wonderlandlabs/forest": "^1.0.11",
     "axios": "^1.1.2",
+    "cookies-next": "^2.1.1",
+    "dayjs": "^1.11.5",
     "grommet": "^2.26.0",
     "grommet-icons": "^4.8.0",
     "next": "12.3.1",
