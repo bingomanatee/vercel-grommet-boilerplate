@@ -6,26 +6,27 @@ import Link from "next/link";
 
 const AppHead = () => {
   const { globalValue, globalLeaf } = useContext(GlobalProvider);
+  const {$loggedIn, expires} = globalValue;
 
   useEffect(() => {
-    if (globalValue.$loggedIn) {
+    if ($loggedIn) {
       globalLeaf.child('providers').do.poll();
     }
 
-  }, [globalLeaf, globalValue.$loggedIn])
+  }, [globalLeaf, $loggedIn])
 
   return (
     <Header background="brand" pad={{ vertical: '0å', horizontal: 'medium' }}>
       <Link href="/"><img src="/img/logo.svg" className={style.logo}/></Link>
       <Heading level={1}>Turtle Web Coupons</Heading>
       {
-        globalValue.$loggedIn ? (
+        $loggedIn ? (
             <Box direction="row">
-              {!globalValue.authExpires ? '' : <Box>
+              {!expires ? '' : <Box>
                 <Box>
-                  <Text color="status-warning">{globalValue.authExpires.toString()}</Text>
+                  <Text color="status-warning">{expires.toString()}</Text>
                 </Box>
-                <Text size="small" color="status-warn">Auth expires</Text>
+                <Text size="small" color="status-warn">Login Expires {expires.fromNow()}</Text>
               </Box>}
               <Box direction="column" fill="vertical" justify="stretch">
                 <img src="/img/client-icon.svg" className={style.icon}/>

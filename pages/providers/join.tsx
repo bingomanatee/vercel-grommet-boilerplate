@@ -1,20 +1,28 @@
 import { Heading, Page, PageContent, Paragraph, Spinner, } from "grommet";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { GlobalProvider } from "../../lib/globalState";
 import Link from "next/link";
 import WithLocalState from "../../lib/WithLocalState";
 import { isEmail, isMobilePhone } from 'validator';
-import { API_ROUTE } from "next/dist/lib/constants";
+import { API_ROOT } from "./../../lib/constants";
 import axios from "axios";
 import { ApplicationForm } from "./join/ApplicationForm";
 
-const Join = ({ leaf, business, email, phone, name, notes, $submitStatus, formState, formError }) => {
+const Join = ({ leaf, business, email, phone, name, notes, $submitStatus, formState, link, formError }) => {
   const { globalLeaf, globalValue } = useContext(GlobalProvider);
-  const { $loggedIn } = globalValue;
+  const { id, token, cookieChecked, authorized } = globalValue;
+  console.log('gv.globalValue:', globalValue);
+  useEffect(() => {
+    if (!authorized && !cookieChecked) {
+      console.log('checking cookie');
+      globalLeaf.do.initCookie();
+    }
+  }, [cookieChecked, authorized]);
+
   return (
     <Page>
       <PageContent>
-        {!$loggedIn ? <Spinner/> : (
+        {!authorized ? <Spinner/> : (
           <>
             <Heading>Become a Provider</Heading>
             <Paragraph size="large">
@@ -29,8 +37,8 @@ const Join = ({ leaf, business, email, phone, name, notes, $submitStatus, formSt
             <Heading level={2}>Application Form</Heading>
             {formState === 'entering' ? (
               <ApplicationForm name={name} notes={notes} leaf={leaf} submitStatus={$submitStatus} business={business}
-                               email={email} phone={phone}
-              />) : ''};
+                               email={email} phone={phone} link={link}
+              />) : ''}
             {formState === 'sending' ? (<>
               <Heading level={3}>Submitting your information -- please wait</Heading>
               <Spinner size="large"/>
@@ -78,9 +86,13 @@ export default WithLocalState((_, Leaf) => {
     formError: null
   }, {
     actions: {
-      submit(leaf) {
+      submit(leaf, auth, token) {
         leaf.do.setFormState('sending');
-        axios.post(API_ROUTE + 'apply', leaf.do.value)
+        console.log('---- sending leaf data:', leaf.value);
+        // return;
+        axios.post(API_ROOT + 'connect/join', leaf.value, {
+          headers: {auth, token}
+        })
           .then(({ data }) => {
             leaf.do.setFormState('done');
           })

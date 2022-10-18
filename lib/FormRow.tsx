@@ -8,7 +8,7 @@ function ucFirst(string: string) {
     }).join(' ')
 }
 
-export default ({ leaf, name, value, validator, prompt = '', notes = '', type = 'text' }) => {
+export default ({ leaf, name, value, title, validator, prompt = '', notes = '', type = 'text' }) => {
 
   const updateValue = (e) => leaf.set(name, e.target.value);
   let Field = TextInput;
@@ -17,13 +17,14 @@ export default ({ leaf, name, value, validator, prompt = '', notes = '', type = 
       Field = TextArea;
       break;
   }
-  const input = <Field value={value} name={name} onChange={updateValue}/>
+  const input = <Field value={value} name={name} onChange={updateValue}
+  />
   const size = useContext(ResponsiveContext);
   let labelSize = '12rem';
   let notesSize = 'medium';
-  let inputSize ='large';
+  let inputSize = 'large';
   let fieldOrientation = 'row';
-  let gap ='medium';
+  let gap = 'medium';
 
   switch (size) {
     case 'small':
@@ -56,19 +57,25 @@ export default ({ leaf, name, value, validator, prompt = '', notes = '', type = 
   }, [validator])
 
   const dPrompt = useMemo(() => {
-    if (value === '') return false;
-    if (!vrTest || vrTest(value)) return false;
+    if (value === '') {
+      return false;
+    }
+    if (!vrTest || vrTest(value)) {
+      return false;
+    }
 
     if (Array.isArray(validator)) {
       return name + `must be${validator.map((term, index) => {
-        if (!term) return '';
+        if (!term) {
+          return '';
+        }
         switch (index) {
           case 0:
             return `at least ${term} letters`;
             break;
 
           case 1:
-            return `no greater than ${term} lettters`;
+            return `no greater than ${term} letters`;
             break;
         }
         return '';
@@ -80,20 +87,24 @@ export default ({ leaf, name, value, validator, prompt = '', notes = '', type = 
   }, [value, vrTest, prompt]);
 
   const labelColor = useMemo(() => {
-    if (!vrTest || (!value)) return 'black';
-    if (dPrompt) return 'status-error';
+    if (!vrTest || (!value)) {
+      return 'black';
+    }
+    if (dPrompt) {
+      return 'status-error';
+    }
     return 'status-ok';
   }, [value, dPrompt]);
 
   return (
-      <Box flex={false} direction={fieldOrientation} gap={gap} fill="horizontal" justify="stretch">
-        <Box width={labelSize} pad={{left: 'small', right: 'small', top: 'small'}} flex={false}>
-          <Text color={labelColor} weight="bold">{ucFirst(name)}</Text>
-        </Box>
-        <Box width={inputSize} flex={size !== 'small'} pad="xsmall">{input}</Box>
-        {name ? <Box width={notesSize} pad="small" fill="vertical">
-          <Text size="small" color="grey">{dPrompt || notes}</Text>
-        </Box> : ''}
+    <Box flex={false} direction={fieldOrientation} gap={gap} fill="horizontal" justify="stretch">
+      <Box width={labelSize} pad={{ left: 'small', right: 'small', top: 'small' }} flex={false}>
+        <Text color={labelColor} weight="bold">{title || ucFirst(name)}</Text>
       </Box>
+      <Box width={inputSize} flex={size !== 'small'} pad="xsmall">{input}</Box>
+      {name ? <Box width={notesSize} pad="small" fill="vertical">
+        <Text size="small" color="grey">{dPrompt || notes}</Text>
+      </Box> : ''}
+    </Box>
   );
 }

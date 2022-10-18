@@ -8,13 +8,16 @@ const Login = (params) => {
   const { globalLeaf, globalValue } = useContext(GlobalProvider)
   const router = useRouter();
 
+  const {authorized, cookieChecked} = globalValue;
+
   useEffect(() => {
+    if (authorized) return;
     if (router.query.id && router.query.token) {
-      globalLeaf.do.initToken(router );
-    } else if (!globalValue.cookieChecked) {
+      globalLeaf.do.initToken(router);
+    } else if (!cookieChecked) {
       globalLeaf.do.initCookie();
     }
-  }, [router.query])
+  }, [router.query, cookieChecked, cookieChecked, authorized])
 
   if (globalValue.authorized === false) {
     router.push('/unauthorized');

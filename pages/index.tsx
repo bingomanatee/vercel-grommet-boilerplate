@@ -6,7 +6,7 @@ import WithLocalState from "../lib/WithLocalState";
 import { Leaf } from "@wonderlandlabs/forest";
 import { isEmail } from 'validator';
 import axios from "axios";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { GlobalProvider } from "../lib/globalState";
 import LoggedIn from "../lib/views/LoggedIn";
 import { useRouter } from "next/router";
@@ -19,8 +19,14 @@ const Home: NextPage = ({ email, leaf, clicked, sent, $canSubmit }) => {
     router.push('/unauthorized');
     return '';
   }
-  const { id, token } = gv.globalValue;
+  const { id, token, cookieChecked, authorized } = gv.globalValue;
   console.log('gv.globalValue:', gv.globalValue);
+  useEffect(() => {
+    if (!authorized && !cookieChecked) {
+      console.log('checking cookie');
+      gv.globalLeaf.do.initCookie();
+    }
+  }, [cookieChecked, authorized]);
   if (id && token) {
     return <LoggedIn/>
   }
