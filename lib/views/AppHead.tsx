@@ -6,7 +6,7 @@ import Link from "next/link";
 
 const AppHead = () => {
   const { globalValue, globalLeaf } = useContext(GlobalProvider);
-  const {$loggedIn, expires} = globalValue;
+  const { $loggedIn, expires } = globalValue;
 
   useEffect(() => {
     if ($loggedIn) {
@@ -29,18 +29,19 @@ const AppHead = () => {
                 <Text size="small" color="status-warn">Login Expires {expires.fromNow()}</Text>
               </Box>}
               <Box direction="column" fill="vertical" justify="stretch">
-                <img src="/img/client-icon.svg" className={style.icon}/>
-                <Link href="tokens"><Text textAlign="center">Tokens</Text></Link>
+                <Link href="/tokens"><Button plain><img src="/img/client-icon.svg"
+                                                        className={style.icon}/></Button></Link>
+                <Link href="/tokens"><Text textAlign="center">Tokens</Text></Link>
               </Box>
               <Box direction="column" fill="vertical" justify="stretch">
-                <Link href="providers"><Button plain>
+                <Link href="/providers"><Button plain>
                   <img src="/img/publisher-icon.svg" className={style.icon}/>
                 </Button></Link>
                 <Button plain badge={{
                   value: globalValue.providers?.providers?.length,
                   background: 'red'
                 }}>
-                  <Link href="providers"><Text textAlign="center">Providers</Text></Link>
+                  <Link href="/providers"><Text textAlign="center">Providers</Text></Link>
                 </Button>
               </Box>
             </Box>

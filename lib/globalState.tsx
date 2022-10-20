@@ -5,6 +5,7 @@ import { createContext } from 'react';
 export const GlobalProvider = createContext({ globalLeaf: {}, globalValue: {} })
 import { setCookie, getCookie, deleteCookie } from 'cookies-next';
 import providers from "./globalState/providers";
+import accounts from "./globalState/accounts";
 import { API_ROOT } from "./constants";
 import axios from "axios";
 import dayjs from "dayjs";
@@ -21,6 +22,7 @@ const globalLeaf = new Leaf({
   cookieChecked: false,
   authExpires: null,
   authorized: null,
+  sharedToken: '',
 }, {
   actions: {
     badLogin(leaf) {
@@ -44,6 +46,26 @@ const globalLeaf = new Leaf({
       }
       leaf.do.setAuthorized(true);
     },
+    async refreshSharedToken(leaf) {
+      const { id, token } = leaf.value;
+      if (!(id && token)) {
+        console.log('refreshSharedToken: no id,token in value');
+      }
+      try {
+        const {data} = await axios.post('/api/token-provider/share',
+          {sharedToken: leaf.value.sharedToken}, {
+            headers: {
+              auth: id, token
+            }
+          });
+        console.log('st data:', data);
+        if ('shared_token' in data) {
+          leaf.do.setSharedToken (data.shared_token);
+        }
+      } catch (err) {
+        console.log('error getting shared token:', err.message);
+      }
+    },
     auth(leaf) {
       const { id, token } = leaf.value;
       if (!(id && token)) {
@@ -65,7 +87,21 @@ const globalLeaf = new Leaf({
         }
       }).catch (err => {
         console.log('error authorizing', id, token, err);
+        return leaf.do.badLogin();
       });
+      leaf.do.setAuthChecked(true);
+    },
+    init(leaf) {
+      const {authorized, authChecked, id, token, cookieChecked} = leaf.value;
+
+      if (authorized) {
+        return;
+      }
+      if (!cookieChecked) {
+        leaf.do.initCookie();
+      } else {
+        leaf.do.auth(); // validate token against server
+      }
     },
     // gets the token from the cookie. note - does NOT validate with server.
     initCookie(leaf) {
@@ -80,7 +116,6 @@ const globalLeaf = new Leaf({
           leaf.do.setId(id);
           leaf.do.setToken(token);
           console.log('--- after initCookie do auth with ', id, token);
-          leaf.do.auth(); // validate token against server
         }
       } catch (err) {
         console.log('error getting cookies', err);
@@ -110,7 +145,8 @@ const globalLeaf = new Leaf({
     }
   },
   children: {
-    providers: providers()
+    providers: providers(),
+    accounts: accounts(),
   }
 });
 
