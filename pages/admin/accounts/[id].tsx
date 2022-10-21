@@ -9,13 +9,13 @@ import {
   Card,
   CardBody,
   CardHeader,
-  CardFooter, Spinner, Header, List, DataTable, CheckBoxGroup, Grid
+  CardFooter, Spinner, Header, List, DataTable, RadioButtonGroup, Grid
 } from "grommet";
 import { useContext, useEffect, useMemo } from "react";
 import { GlobalProvider } from "../../../lib/globalState";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { Edit } from "grommet-icons";
+import { Close, Edit } from "grommet-icons";
 import WithLocalState from "../../../lib/WithLocalState";
 import axios from "axios";
 
@@ -63,9 +63,18 @@ const GRID_AREAS = [
   }
 ]
 
-function grantList(grants) {
-  return grants.map(({ action, target }) => {
-    return `${target}:${action}`
+function grantList(leaf, grants) {
+  return grants.map((grant) => {
+    const { action, target } = grant;
+    const term = `${target}:${action}`;
+    return {
+      name: term,
+      value: (
+        <Box key={term} direction="row" justify="between">
+          <Close onClick={() => leaf.do.removeGrant(grant)}/>
+        </Box>
+      )
+    };
   }).sort();
 }
 
@@ -102,6 +111,8 @@ const Action = ({ leaf, actions, targets }) => {
     router.push('/unauthorized');
   }
 
+  console.log('accounts[id] value:', leaf.value);
+
   if (!authorized) { // it is null
     return <Page><PageContent>
       <Box margin="large" fill={true} justify="center">
@@ -117,9 +128,11 @@ const Action = ({ leaf, actions, targets }) => {
           <>
             <List data={accountProps(account)}
                   action={(data) => {
-                    console.log('action:', data);
                     if (data.field === 'grants') {
-                      return <Box><List data={grantList(data.value)}/></Box>;
+                      return <Box width="50%"><List border={false}
+                                                    primaryKey="name"
+                                                    secondaryKey="value"
+                                                    data={grantList(leaf, data.value)}/></Box>;
                     }
                     return <Box>{data.value}</Box>;
                   }
@@ -138,19 +151,20 @@ const Action = ({ leaf, actions, targets }) => {
               <Heading gridArea="title" level={2}>Add Grant</Heading>
               <Heading gridArea='action=title' level={3}>Action</Heading>
               <Box gridArea="action-options" pad="small">
-                <CheckBoxGroup
+                <RadioButtonGroup
                   value={actions}
                   onChange={(e) => {
-                    leaf.do.setActions(e.value);
+                    console.log('radio onChange: ', e);
+                    leaf.do.setActions(e.target.value);
                   }}
-                  options={['super', 'admin', 'edit', 'create', 'view']}/>
+                  options={['super', 'admin', 'edit', 'create', 'view', 'block']}/>
               </Box>
               <Heading gridArea="target-title" level={3}>Subject</Heading>
               <Box gridArea="target-options" pad="small">
-                <CheckBoxGroup
+                <RadioButtonGroup
                   value={targets}
                   onChange={(e) => {
-                    leaf.do.setTargets(e.value);
+                    leaf.do.setTargets(e.target.value);
                   }}
                   options={['accounts', 'businesses', 'tokens', 'site']}/>
               </Box>
@@ -169,19 +183,40 @@ export default WithLocalState((params, Leaf) => (new Leaf({
   actions: [], targets: [], globalLeaf: {}, state: 'editing',
 }, {
   actions: {
-    async addGrants(leaf) {
-      leaf.do.setState('sending grants');
+    async removeGrant(leaf, grant) {
       const { id: auth, token } = leaf.value.globalLeaf.value;
-      const action = await axios.post(
-        '/api/accounts/' + leaf.value.globalLeaf.child('accounts').value.id,
-        { grants: { actions: leaf.value.actions, targets: leaf.value.targets } },
-        {
+      if (!(auth && token)) {
+        console.log('removeGrant --- no auth in ', leaf.value.globalLeaf);
+        return;
+      }
+      try {
+        await axios.delete('/api/grants/' + grant.id, {
           headers: {
             auth, token
           }
-        }
-      );
-      leaf.value.globalLeaf.child('accounts').do.setAccount(action);
+        });
+        return leaf.value.globalLeaf.child('accounts').do.loadAccount();
+      } catch (err) {
+        console.log('cannot delete:', err);
+      }
+    },
+    async addGrants(leaf) {
+      leaf.do.setState('sending grants');
+      const { id: auth, token } = leaf.value.globalLeaf.value;
+      try {
+        const { data } = await axios.post(
+          '/api/accounts/' + leaf.value.globalLeaf.child('accounts').value.id,
+          { grants: { actions: leaf.value.actions, targets: leaf.value.targets } },
+          {
+            headers: {
+              auth, token
+            }
+          }
+        );
+        leaf.value.globalLeaf.child('accounts').do.setAccount(data.account);
+      } catch (err) {
+        console.log('error adding grant:', err);
+      }
     }
   }
 })), Action);

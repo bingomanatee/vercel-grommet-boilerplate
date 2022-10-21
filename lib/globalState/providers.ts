@@ -26,18 +26,13 @@ export default () => {
               if (Array.isArray(token_providers)) {
                 leaf.do.setProviders(token_providers);
               }
-              if ('auth-expires' in headers) {
-                leaf.parent.do.setAuthExpires(dayjs(headers['auth-expires']));
-              }
-              leaf.parent.do.logIn();
             })
             .catch ((err) => {
-              console.log('error getting token providers:', err);
+              console.warn('error getting token providers:', err, 'with', leaf.parent.value);
               const headers = err.response?.headers;
               if (headers) {
-                console.log('headers in response:', headers);
+                console.warn('headers in response:', headers);
               }
-              leaf.parent.do.badLogin();
             })
         }
       }

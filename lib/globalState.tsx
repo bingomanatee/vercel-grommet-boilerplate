@@ -32,6 +32,7 @@ const globalLeaf = new Leaf({
       leaf.do.setAuthorized(false);
     },
     logIn(leaf, expires) {
+      leaf.do.setAuthorized(true);
       if (expires) {
         const expiresAt = dayjs(expires);
         if (expiresAt.isValid()) {
@@ -40,11 +41,11 @@ const globalLeaf = new Leaf({
         }
         if (expiresAt.isBefore(dayjs())) {
           console.log('>>>>>> expired login', expires);
+          leaf.do.setAuthorized(false);
+        } else {
+          console.log('>>>>> valid login expiration', expires);
         }
-        console.log('>>>>> valid login expiration', expires);
-        return;
       }
-      leaf.do.setAuthorized(true);
     },
     async refreshSharedToken(leaf) {
       const { id, token } = leaf.value;

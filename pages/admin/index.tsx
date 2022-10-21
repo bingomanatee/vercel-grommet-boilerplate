@@ -29,6 +29,7 @@ const Admin = () => {
   const { cookieChecked, authorized, authChecked } = globalValue;
   const router = useRouter();
 
+  console.log('global value:', globalValue);
   useEffect(() => {
     if (!(cookieChecked && authChecked)) {
       return globalLeaf.do.init();

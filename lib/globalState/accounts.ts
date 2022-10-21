@@ -13,12 +13,20 @@ export default () => {
     {
       actions: {
         loadAccount(leaf, accountId) {
-          leaf.do.setId(accountId);
+          if (!accountId) {
+            if (leaf.value.id) {
+              accountId = leaf.value.id;
+            } else {
+              throw new Error('attempt to load account with no id stored')
+            }
+          } else {
+            leaf.do.setId(accountId);
+          }
 
           const { id: auth, token} = leaf.parent.value;
 
           console.log('--- getting account', accountId);
-          axios.get('/api/accounts/' + accountId, {
+          return axios.get(`/api/accounts/${accountId}`, {
             headers: {
               auth,
               token
@@ -26,9 +34,10 @@ export default () => {
           })
             .then((res) => {
               const {data, headers} = res;
-              console.log('got account', data, 'h', headers, 'r=', res);
+
               const {account} = data;
               leaf.do.setAccount(account);
+              return account;
             })
             .catch ((err) => {
               console.log('error getting account:', accountId, err);
@@ -38,7 +47,6 @@ export default () => {
               }
               leaf.do.setAccountError(err);
             })
-
 
         },
         poll(leaf) {
